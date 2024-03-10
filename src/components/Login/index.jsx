@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import Loader from "../Loader";
 
 const Login = () => {
 	const [data, setData] = useState({ email: "", password: "" });
@@ -8,6 +9,7 @@ const Login = () => {
 	const [msg, setMsg] = useState("");
 	const [forgotPass,setForgotPass] = useState(false);
 	const [emailForgot,setEmailForgot] = useState("");
+	const [loader,setLoader] = useState(false)
 
 	const handleChange = ({ currentTarget: input }) => {
 		setData({ ...data, [input.name]: input.value });
@@ -36,10 +38,11 @@ const Login = () => {
 
 	const forgotPassword = async()=>{
         try {
+			setLoader(true)
 			const url = "http://localhost:8080/api/forgot";
-			console.log(emailForgot)
 			const {data: res} = await axios.post(url,{emailForgot})
 			setMsg(res.message);
+			setLoader(false)
 			
 		} catch (error) {
 			if (
@@ -51,7 +54,8 @@ const Login = () => {
 				setEmailForgot("")
 				setTimeout(() => {
 					setError("");
-				  }, 1000);
+				  }, 1500);
+				  setLoader(false)
 			  }
 		}
 	}
@@ -95,12 +99,23 @@ const Login = () => {
                   {msg}
                 </div>
               )}
-					{!forgotPass ?<div><p className="text-teal-500 text-xl font-semibold text-center cursor-pointer" onClick={()=>setForgotPass(true)}>Forgot Your Password?</p>
-                    <button type="submit" className="px-4 py-2 bg-teal-500 text-white rounded-lg font-semibold">
-                        Sign In
-                    </button></div>:<div onClick={forgotPassword} className="px-4 py-2 bg-teal-500 text-white rounded-lg font-semibold text-center cursor-pointer">
-                        Verify User
-                    </div>}
+					{!forgotPass ? (
+    <div>
+        <p className="text-teal-500 text-xl font-semibold text-center cursor-pointer" onClick={() => setForgotPass(true)}>Forgot Your Password?</p>
+        <button type="submit" className="px-4 py-2 bg-teal-500 text-white rounded-lg font-semibold mt-2">
+            Sign In
+        </button>
+    </div>
+) : (
+    loader ? (
+        <Loader />
+    ) : (
+        <div onClick={forgotPassword} className="px-4 py-2 bg-teal-500 text-white rounded-lg font-semibold text-center cursor-pointer">
+            Verify User
+        </div>
+    )
+)}
+
                 </form>
             </div>
             <div className="p-8 flex-1 flex flex-col justify-center items-center bg-teal-500 rounded-r-lg">

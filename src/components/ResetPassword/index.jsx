@@ -19,6 +19,9 @@ const ResetPassword = ()=>{
         try {
             if(data.password !== data.confirmPassword) {
                 setError("Password not matched");
+                setTimeout(() => {
+                  setError("");
+                }, 1000);
                 return;
             }
             const url = `http://localhost:8080/api/forgot/${param.id}/reset/${param.token}`;

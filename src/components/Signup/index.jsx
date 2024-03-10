@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import Loader from "../Loader";
 const Signup = () => {
   const [data, setData] = useState({
     userName: "",
@@ -11,6 +12,7 @@ const Signup = () => {
   const [error, setError] = useState("");
   const [msg, setMsg] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [loader,setLoader] = useState(false);
 
   const handleChange = ({ currentTarget: input }) => {
     setData({ ...data, [input.name]: input.value });
@@ -21,22 +23,24 @@ const Signup = () => {
   };
 
   const handleSubmit = async (e) => {
+    
     e.preventDefault();
     try {
       if (!agreedToTerms) {
         setError("Please agree to the terms and conditions");
         setTimeout(() => {
           setError("");
-        }, 1000);
+        }, 1500);
         return;
       }
       if (data.password !== data.confirmPassword) {
         setError("Password doesn't match");
         setTimeout(() => {
           setError("");
-        }, 1000);
+        }, 1500);
         return;
       }
+      setLoader(true)
       const url = "http://localhost:8080/api/users";
       const { data: res } = await axios.post(url, data);
       setMsg(res.message);
@@ -49,7 +53,8 @@ const Signup = () => {
       setAgreedToTerms(!agreedToTerms);
       setTimeout(() => {
         setMsg("");
-      }, 1000);
+      }, 1500);
+      setLoader(false)
     } catch (error) {
       if (
         error.response &&
@@ -57,6 +62,10 @@ const Signup = () => {
         error.response.status <= 500
       ) {
         setError(error.response.data.message);
+        setLoader(false)
+        setTimeout(() => {
+          setError("");
+        }, 1500);
       }
     }
   };
@@ -141,6 +150,7 @@ const Signup = () => {
                   {msg}
                 </div>
               )}
+              {loader? <Loader/>:
               <button
                 type="submit"
                 className={`px-4 py-2 bg-green-500 text-white rounded-lg font-semibold ${
@@ -149,7 +159,7 @@ const Signup = () => {
                 disabled={!agreedToTerms}
               >
                 Sign Up
-              </button>
+              </button>}
             </form>
           </div>
         </div>
